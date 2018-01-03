@@ -27,8 +27,22 @@ namespace NNBlog.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //string connstr = Configuration.GetSection("ConnStr").Value;
+
+            DAL.AdminDAL adal = new DAL.AdminDAL();
+            services.AddSingleton<DAL.AdminDAL>(adal);
+
+            DAL.BlogDAL blogdal = new DAL.BlogDAL();
+            services.AddSingleton<DAL.BlogDAL>(blogdal);
+
+            DAL.CategoryDAL cadal = new DAL.CategoryDAL();
+            services.AddSingleton<DAL.CategoryDAL>(cadal);
+
             // Add framework services.
             services.AddMvc();
+            //使用Session
+            services.AddDistributedMemoryCache();
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,6 +68,9 @@ namespace NNBlog.Web
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "Admin",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

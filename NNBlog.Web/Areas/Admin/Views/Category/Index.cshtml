@@ -1,0 +1,219 @@
+﻿
+@{
+    ViewData["Title"] = "博客分类";
+}
+<blockquote class="layui-elem-quote">
+    @ViewData["Title"]
+</blockquote>
+<table class="layui-table">
+    <tr>
+        <td style="vertical-align:top; width:20%;">
+            <div id="divtree"></div>
+        </td>
+        <td style="vertical-align:top;">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>增加分类</legend>
+            </fieldset>
+            <div class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">父分类</label>
+                    <div class="layui-input-inline">
+                        <span style="display:inline;line-height:38px;margin-right:10px;">博客</span> <button class="layui-btn layui-btn-mini" style="display:none;">设置为顶级分类</button>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">暂时只能添加博客下级分类</div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分类名称</label>
+                    <div class="layui-input-inline">
+                        <input id="txt_add_caname" class="layui-input" type="text" />
+                    </div>
+                    <div class="layui-form-mid layui-word-aux"></div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn layui-btn-normal layui-btn-small" onclick="add_ca()">新 增</button>
+                    </div>
+                </div>
+            </div>
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>修改分类</legend>
+            </fieldset>
+            <div class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分类名称</label>
+                    <div class="layui-input-inline">
+                        <input id="txt_mod_caname" class="layui-input" type="text" />
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">只能修改分类名称</div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn layui-btn-normal layui-btn-small" onclick="mod_ca()">修 改</button>
+                    </div>
+                </div>
+            </div>
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>删除分类</legend>
+            </fieldset>
+            <div class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分类名称</label>
+                    <div class="layui-input-inline">
+                        <span style="display:inline;line-height:38px;margin-right:10px;" id="span_del_caname"></span>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux"> </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn layui-btn-danger layui-btn-small" onclick="del_ca()">删 除</button>
+                        <input id="current_caid" value="0" type="hidden" />
+                        @Html.AntiForgeryToken()
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+@section scripts{
+    <script>
+
+        layui.use(['tree', 'layer'], function () {
+            var layer = layui.layer
+            , $ = layui.jquery;
+
+            layui.tree({
+                elem: '#divtree' //指定元素
+              , target: '_blank' //是否新选项卡打开（比如节点返回href才有效）
+              , click: function (item) { //点击节点回调
+                  // layer.msg('当前节名称：' + item.name + '<br>全部参数：' + JSON.stringify(item));
+                  console.log(item);
+                  $('#span_del_caname').text(item.name);
+                  $('#current_caid').val(item.caid);
+
+                  $('#txt_mod_caname').val(item.name);
+              }
+              , nodes: @Html.Raw(ViewBag.treejson)
+              });
+
+
+        });
+
+
+        //删除分类
+        function del_ca(){
+            layui.use(['layer'],function(){
+                var layer=layui.layer, $=layui.jquery;
+
+                var caid= $('#current_caid').val();
+                if (caid==='0') {
+                    layer.alert('请选择要删除的分类！');
+                    return;
+                }
+
+                layer.confirm('是否确认删除？',
+                    function() {
+
+                        var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+
+                        var postdata = { id: caid, __RequestVerificationToken: requestVerificationToken };
+                        var url = "/Admin/Category/Delete";
+                        $.post(url,
+                            postdata,
+                            function(data) {
+                                if (data.status === "y") {
+                                    layer.alert(data.info, function() { location.reload(); });
+
+                                } else {
+                                    layer.alert(data.info);
+                                }
+
+                            },
+                            'json');
+                    });
+
+            });
+
+        }
+
+
+        //修改分类
+        function mod_ca(){
+            layui.use(['layer'],function(){
+                var layer=layui.layer, $=layui.jquery;
+
+                var caid= $('#current_caid').val();
+                if (caid==='0') {
+                    layer.alert('请选择要修改的分类！');
+                    return;
+                }
+
+                var caname = $.trim($('#txt_mod_caname').val());
+                if (caname==='') {
+                    layer.alert('请输入分类名称！');
+                    return;
+                }
+
+
+
+                var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+
+                var postdata={id:caid,__RequestVerificationToken:requestVerificationToken,caname:caname};
+                var url  = "/Admin/Category/Add";
+                $.post(url,
+                    postdata,
+                    function(data) {
+                        if (data.status === "y") {
+                            layer.alert(data.info, function() { location.reload(); });
+
+                        } else {
+                            layer.alert(data.info);
+                        }
+
+                    },
+                    'json');
+
+
+            });
+
+
+        }
+
+
+        //新增分类
+        function add_ca(){
+            layui.use(['layer'],function(){
+                var layer=layui.layer, $=layui.jquery;
+                var caname = $.trim($('#txt_add_caname').val());
+                if (caname==='') {
+                    layer.alert('请输入分类名称！');
+                    return;
+                }
+
+                var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+
+                var postdata={id:0,__RequestVerificationToken:requestVerificationToken,caname:caname};
+                var url  = "/Admin/Category/Add";
+                $.post(url,
+                    postdata,
+                    function(data) {
+                        if (data.status === "y") {
+                            layer.alert(data.info, function() { location.reload(); });
+
+                        } else {
+                            layer.alert(data.info);
+                        }
+
+                    },
+                    'json');
+
+
+            });
+
+        }
+
+
+    </script>
+}

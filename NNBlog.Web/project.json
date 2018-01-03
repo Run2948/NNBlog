@@ -22,7 +22,9 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
     "NNBlog.DAL": "1.0.0-*",
-    "NNBlog.Model": "1.0.0-*"
+    "NNBlog.Model": "1.0.0-*",
+    "NNBlog.Utility": "1.0.0-*",
+    "Microsoft.AspNetCore.Session": "1.0.0"
   },
 
   "tools": {

@@ -1,0 +1,120 @@
+﻿@model NNBlog.Model.Blog
+@{
+    ViewBag.Title = (Model.Id == 0? "新增":"编辑")+"博客";
+    Dictionary<string, Object> dic = new Dictionary<string, object>();
+    dic.Add("lay-filter", "fenglei");
+}
+<blockquote class="layui-elem-quote">
+    @ViewBag.Title
+</blockquote>
+ <div class='layui-form'>
+    <div class='layui-form-item'>
+        <label class='layui-form-label'>标题</label>
+        <div class='layui-input-inline'>
+           @Html.TextBoxFor(a=>a.Title,new { @class="layui-input"})
+        </div>
+        <div class='layui-form-mid layui-word-aux'><!--辅助文字--></div>
+    </div>
+    <div class='layui-form-item'>
+        <label class='layui-form-label'>内容</label>
+        <div class='layui-input-block' style="width:700px;">
+            @Html.TextAreaFor(a=>a.Body,new { @class= "layui-textarea" })
+        </div>
+        <div class='layui-form-mid layui-word-aux'><!--辅助文字--></div>
+    </div> 
+    <div class='layui-form-item'>
+        <label class='layui-form-label'>分类编号</label>
+        <div class='layui-input-inline'>
+            @Html.DropDownList(
+           "cabh",
+           new SelectList(ViewBag.calist,"CateNo","CateName",Model.CateNo),
+            dic) 
+            @Html.HiddenFor(a=>a.CateName) 
+        </div> 
+        <div class='layui-form-mid layui-word-aux'><!--辅助文字--></div>
+    </div> 
+ 
+    <div class='layui-form-item'>
+        <div class='layui-input-block'>
+            <button type="button" class='layui-btn' id="btnSub">@ViewBag.Title</button> 
+            @Html.HiddenFor(a=>a.Id)
+            @Html.AntiForgeryToken()
+        </div>
+    </div>
+</div>
+@Html.AntiForgeryToken()
+ 
+ 
+    @section scripts{
+    
+        <script>
+            layui.use(['layedit', 'form', 'layer'], function () {
+                var layer = layui.layer;
+                var $ = layui.jquery;
+                var form = layui.form;
+                var layedit = layui.layedit;
+                layedit.set({
+                    uploadImage: {
+                        url: '/Admin/Blog/UploadImage' //接口url
+                      , type: 'post' //默认post
+                    }
+                });
+             var index =   layedit.build('Body', {
+                    tool: [ 
+                      'strong' //加粗
+                      , 'italic' //斜体
+                      , 'underline' //下划线
+                      , 'del' //删除线
+
+                      , '|' //分割线
+
+                      , 'left' //左对齐
+                      , 'center' //居中对齐
+                      , 'right' //右对齐
+                      , 'link' //超链接
+                      , 'unlink' //清除链接
+                      , 'face' //表情
+                      , 'image' //插入图片
+                     
+                    ]
+             }); //建立编辑器
+
+
+  
+             form.on('select(fenglei)', function (data) {
+                 
+                 console.log(data.value); //得到被选中的值
+                 $('#cabh').val(data.value);
+                 console.log($("#cabh option:selected").text());
+                 $('#Caname').val($("#cabh option:selected").text());
+                 
+                 
+             });
+
+             $('#btnSub').click(function () {
+                 var id = $('#Id').val();
+                    var title = $.trim($('#Title').val());
+                 var body = layedit.getContent(index);
+                    var cabh = $('#cabh').val();
+                    var caname = $('#Caname').val();
+                    var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+                 
+                    var postdata =  {
+                        id: id,
+                        title: title,
+                        body: body,
+                        cabh: cabh,
+                        caname: caname,
+                        __RequestVerificationToken: requestVerificationToken
+                    };
+                    console.log(postdata);
+                    var url = "/Admin/Blog/Add?t=" + new Date().valueOf();
+                    var indexLoad  = layer.load();
+                    $.post(url, postdata, function (data) {
+                        layer.alert(data.info, function () { location.href="/Admin/Blog/"});
+                        layer.close(indexLoad);
+                     }, 'json');
+                });
+            });
+        </script>
+    }

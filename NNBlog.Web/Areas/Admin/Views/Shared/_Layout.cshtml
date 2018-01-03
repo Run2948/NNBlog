@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - 牛腩博客</title>
+    <link href="~/adminstyle/css/style.css" rel="stylesheet" />
+    <link href="~/layui/css/layui.css" rel="stylesheet" />
+    @RenderSection("styles", required: false)
+</head>
+<body>
+    <div class="place">
+        <span>位置：</span>
+        <ul class="placeul">
+            <li><a href="#">首页</a></li>
+            <li><a href="#">@ViewData["Title"]</a></li>
+        </ul>
+    </div>
+    @RenderBody()
+    <script src="~/layui/layui.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

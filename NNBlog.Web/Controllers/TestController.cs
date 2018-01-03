@@ -14,23 +14,23 @@ namespace NNBlog.Web.Controllers
         public IActionResult Index()
         {
             var str = "";
-            var cateDal = new DAL.CategryDAL();
+            var cateDal = new DAL.CategoryDAL();
 
-            str = "新增的分类返回的值："+ cateDal.Insert(new Model.Category() { CateName = "newcatename"}).ToString() + "<hr/>";
+            str = "新增的分类返回的值："+ cateDal.Insert(new Model.Category() { CateName = "newcatename"}).ToString() + "\r\n";
 
-            str = "删除Id==7返回的值：" + cateDal.Delete(7) + "<hr/>";
+            str = "删除Id==7返回的值：" + cateDal.Delete(7) + "\r\n";
 
             Model.Category cate = cateDal.GetModel(8);
             if (cate != null)
             {
                 cate.CateName = "新修改的名称" + DateTime.Now;
-                str +="修改Id==8返回的值：" + cateDal.Update(cate) + "<hr/>";
+                str +="修改Id==8返回的值：" + cateDal.Update(cate) + "\r\n";
             }
 
             List<Model.Category> list = cateDal.GetList("");
             foreach (var item in list)
             {
-                str += $"<div>分类ID：{item.Id},分类名称：{item.CateName}</div><br/>";
+                str += $"分类ID：{item.Id},分类名称：{item.CateName}\r\n";
             }
             return Content(str);
         }
