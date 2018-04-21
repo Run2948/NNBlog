@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>无标题文档</title>
+    <title></title>
     <link href="/adminstyle/css/style.css" rel="stylesheet" type="text/css" />
     <script src="~/lib/jquery/dist/jquery.js"></script>
     <script type="text/javascript">
@@ -76,9 +76,9 @@
             <li><a href="/admin/home/logout" target="_parent">退出</a></li>@*login.html*@
         </ul>
         <div class="user">
-            <span>admin</span>
+            <span>@ViewBag.UserName</span>
             <i>消息</i>
-            <b>5</b>
+            <b>0</b>
         </div>
     </div>
 </body>

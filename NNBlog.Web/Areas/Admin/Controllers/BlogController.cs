@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using NNBlog.Utility;
 using System.IO;
+using NNBlog.Web.Filter;
 
 namespace NNBlog.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [AdminLoginFilter]
     public class BlogController : Controller
     {
         private IHostingEnvironment hostingEnv;
@@ -28,17 +30,20 @@ namespace NNBlog.Web.Areas.Admin.Controllers
         // GET: /<controller>/
         public IActionResult Index()
         {
-            ViewBag.calist = catedal.GetList("ParentCate='01' order by CateName");
+            ViewBag.calist = catedal.GetList("ParentCate='0' ORDER BY CateName");
             return View();
         }
-
 
 
         /// <summary>
         /// 分页取数据，返回JSON
         /// </summary>
+        /// <param name="cabh"></param>
         /// <param name="pagesize"></param>
         /// <param name="pageindex"></param>
+        /// <param name="key"></param>
+        /// <param name="startdate"></param>
+        /// <param name="enddate"></param>
         /// <returns></returns>
         [HttpPost]
         public IActionResult List(string key, string startdate, string enddate, string cabh, int pagesize = 12, int pageindex = 1)
@@ -78,7 +83,7 @@ namespace NNBlog.Web.Areas.Admin.Controllers
         /// <returns></returns>
         public IActionResult Add(int? id)
         {
-            ViewBag.calist = catedal.GetList("ParentCate='01' ORDER BY CateName");
+            ViewBag.calist = catedal.GetList("ParentCate='0' ORDER BY CateName");
             Model.Blog b = new Model.Blog() { Id = 0, };
             if (id != null)
             {
@@ -97,7 +102,7 @@ namespace NNBlog.Web.Areas.Admin.Controllers
         {
             #region 文件上传
             var imgFile = Request.Form.Files[0];
-            if (imgFile != null && !string.IsNullOrEmpty(imgFile.FileName))
+            if (!string.IsNullOrEmpty(imgFile?.FileName))
             {
                 var filename = ContentDispositionHeaderValue
                     .Parse(imgFile.ContentDisposition)
@@ -134,8 +139,8 @@ namespace NNBlog.Web.Areas.Admin.Controllers
             if (blog.CateNo == "0")
             {
                 //新分类，先增加 
-                string cateNo = catedal.GetCateNo("01", 2);
-                catedal.Insert(new Model.Category() { CateName = blog.CateName, CateNo = cateNo, CreateDate = DateTime.Now, ParentCate = "01", Remark = "" });
+                string cateNo = catedal.GetCateNo("0", 2);
+                catedal.Insert(new Model.Category() { CateName = blog.CateName, CateNo = cateNo, CreateDate = DateTime.Now, ParentCate = "0", Remark = "" });
                 blog.CateNo = cateNo;
             }
             if (blog.Id == 0)
@@ -153,7 +158,7 @@ namespace NNBlog.Web.Areas.Admin.Controllers
         /// <summary>
         /// 删除博客 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <returns></returns>
         [HttpPost]
         [AutoValidateAntiforgeryToken]

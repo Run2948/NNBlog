@@ -1,0 +1,298 @@
+﻿
+@{
+    ViewData["Title"] = "班纳博客";
+    Layout = null;
+    NNBlog.DAL.BlogDAL blogdal = ViewBag.blogdal;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>班纳博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="/assets/Hexo/css/style.css" rel="stylesheet" />
+    <script src="/assets/Hexo/js/jquery-1.10.2.min.js"></script>
+</head>
+<body>
+    <div id="container">
+        <div class="left-col">
+            <div class="overlay"></div>
+            <div class="intrude-less">
+                <header id="header" class="inner">
+                    <a href="/" class="profilepic">
+                        <img lazy-src="/images/logo.jpg" class="js-avatar">
+                    </a>
+                    <hgroup>
+                        <h1 class="header-author"><a href="/">班纳博客</a></h1>
+                    </hgroup>
+                    <p class="header-subtitle">
+                        <div class="layui-input-inline">
+                            <input type="hidden" id="search_cate" value="@ViewBag.CateNo">
+                            <input type="hidden" id="search_month" value="@ViewBag.Month">
+                            <input style="float: left; width: 140px; height: 30px;" type="text" id="search_key" placeholder="查询关键字" onkeypress="search();" autocomplete="off" class="layui-input" value="@ViewBag.Key">
+                            <button style="float: left;" class="layui-btn layui-btn-sm" onclick="search();"><i class="layui-icon">&#xe615;</i> 查询</button>
+                            <div class="clear"></div>
+                        </div>
+                    </p>
+                    <div class="switch-btn">
+                        <div class="icon">
+                            <div class="icon-ctn">
+                                <div class="icon-wrap icon-house" data-idx="0">
+                                    <div class="birdhouse"></div>
+                                    <div class="birdhouse_holes"></div>
+                                </div>
+                                <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                                    <div class="ribbon"></div>
+                                </div>
+                                <div class="icon-wrap icon-link hide" data-idx="2">
+                                    <div class="loopback_l"></div>
+                                    <div class="loopback_r"></div>
+                                </div>
+                                <div class="icon-wrap icon-me hide" data-idx="3">
+                                    <div class="user"></div>
+                                    <div class="shoulder"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tips-box hide">
+                            <div class="tips-arrow"></div>
+                            <ul class="tips-inner">
+                                <li><a href="/">主页</a></li>
+                                <li>日历</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="switch-area">
+                        <div class="switch-wrap">
+                            <section class="switch-part switch-part1">
+                                <nav class="header-menu">
+                                    <ul>
+                                        @foreach (NNBlog.Model.Category item in ViewBag.calist)
+                                        {
+                                            var blogCount = blogdal.CalcCount($"CateNo='{item.CateNo}'");
+                                            if (blogCount > 0)
+                                            {
+
+                                                <li><a href="/Blog/Index?cate=@item.CateNo">@item.CateName （@blogCount）</a></li>
+                                            }
+                                            else
+                                            {
+                                                <li><a href="javascript:;">@item.CateName （@blogCount）</a></li>
+                                            }
+                                        }
+                                    </ul>
+                                </nav>
+                                <nav class="header-nav">
+                                    <div class="social">
+                                        <a class="github" target="_blank" href="https://github.com/Run2048" title="github">github</a>
+                                        <a class="linkedin" target="_blank" href="http://www.linkedin.com/in/%E9%94%A6%E6%B6%A6-%E6%9C%B1-b2747613a/" title="LinkedIn">LinkedIn</a>
+                                        <a class="mail" target="_blank" href="mailto:1004850985@qq.com" title="Email">Email</a>
+                                    </div>
+                                </nav>
+                            </section>
+                            <section class="switch-part switch-part2">
+                                <div class="widget">
+                                    <nav class="header-menu">
+                                        <ul align="left">
+                                            @foreach (var month in ViewBag.blogmonth)
+                                            {
+                                                DateTime d = DateTime.Parse(month + "-01");
+                                                string cond = $"CreateDate >= '{d:yyyy-MM-dd}' and CreateDate < '{d.AddMonths(1):yyyy-MM-dd}'";
+                                                var blogCount = blogdal.CalcCount(cond);
+                                                if (blogCount > 0)
+                                                {
+                                                    <li><a href="/Blog/Index?month=@month">@d.ToString("yyyy年MM月") （@blogCount）</a></li>
+                                                }
+                                                else
+                                                {
+                                                    <li><a href="javascript:;">@d.ToString("yyyy年MM月")  （@blogCount）</a></li>
+                                                }
+                                            }
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </header>
+            </div>
+        </div>
+        <div class="mid-col">
+            <nav id="mobile-nav">
+                <div class="overlay">
+                    <h1 class="header-author js-mobile-header hide">班纳博客</h1>
+                </div>
+                <div class="intrude-less">
+                    <header id="header" class="inner">
+                        <div class="profilepic">
+                            <img lazy-src="/images/logo.jpg" class="js-avatar">
+                        </div>
+                        <hgroup>
+                            <h1 class="header-author">班纳博客</h1>
+                        </hgroup>
+                        <p class="header-subtitle">
+                            武汉一世计科软件有限公司欢迎您！
+                        </p>
+                        <nav class="header-menu">
+                            <ul>
+                                <li><a href="/">主页</a></li>
+                                @foreach (NNBlog.Model.Category item in ViewBag.calist)
+                                {
+                                    var blogCount = blogdal.CalcCount($"CateNo='{item.CateNo}'");
+                                    if (blogCount > 0)
+                                    {
+
+                                        <li><a href="/Blog/Index?cate=@item.CateNo">@item.CateName （@blogCount）</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="javascript:;">@item.CateName （@blogCount）</a></li>
+                                    }
+                                }
+                            </ul>
+                        </nav>
+                        <nav class="header-nav">
+                            <div class="social">
+                                <a class="github" target="_blank" href="https://github.com/Run2048" title="github">github</a>
+                                <a class="linkedin" target="_blank" href="http://www.linkedin.com/in/%E9%94%A6%E6%B6%A6-%E6%9C%B1-b2747613a/" title="LinkedIn">LinkedIn</a>
+                                <a class="mail" target="_blank" href="mailto:1004850985@qq.com" title="Email">Email</a>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+            </nav>
+            <div class="body-wrap">
+                <div class="body_list">
+
+                </div>
+
+                <div>
+                    <span style="display:inline; margin:0 10px;">总共<span style="display:inline;" id="span_totalrecord"></span>条记录，第<span style="display:inline;" id="span_curpage">1</span>页/共<span style="display:inline;" id="span_pagecount"></span>页</span>
+                    <span id="divpage" style="display:inline;"></span>
+                </div>
+            </div>
+
+            <footer id="footer">
+                <div class="outer">
+                    <div id="footer-info">
+                        <div class="footer-left">
+                            &copy; 2017 ~ 2027
+                            Powered by <a href="http://www.borun.xyz" target="_blank">borun</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <script src="/assets/Hexo/js/highlight.js"></script>
+        <script src="/assets/Hexo/js/r.js"></script>
+        <script src="/assets/Hexo/js/main.js"></script>
+        <script>
+            var yiliaConfig = {
+                fancybox: true,
+                mathjax: true,
+                animate: true,
+                isHome: true,
+                isPost: false,
+                isArchive: false,
+                isTag: false,
+                isCategory: false,
+                open_in_new: false
+            }
+        </script>
+    </div>
+    <script id="demo" type="text/html">
+        {{#  layui.each(d.list, function(index, item){ }}
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+            <div class="article-meta">
+                <a href="Show/{{item.Id}}" target="_blank" class="article-date">
+                    <time datetime="" itemprop="datePublished">{{item.CreateDate}}</time>
+                </a>
+            </div>
+            <div class="article-inner">
+                <header class="article-header">
+                    <h1 itemprop="name">
+                        <a class="article-title" href="Show/{{item.Id}}" target="_blank">{{item.Title}}</a>
+                    </h1>
+                </header>
+                <div class="article-entry" itemprop="articleBody">
+                    这里是简要说明。。。
+                </div>
+                <div class="article-info article-info-index">
+                    <div class="article-tag tagcloud">
+                        <ul class="article-tag-list">
+                            <li class="article-tag-list-item"><a class="color3">{{item.CateName}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </article>
+        {{#  }); }}
+    </script>
+    <link href="~/layui/css/layui.css" rel="stylesheet" />
+    <script src="~/layui/layui.js"></script>
+    <script>
+        var pagesize = 12; //每页显示数
+
+        /*提取第一页数据并设置分页控件*/
+        load_list_page(1);
+
+        /*加载第X页数据*/
+        function load_list_page(pageindex) {
+            layui.use(['laytpl', 'laypage'], function () {
+                var laytpl = layui.laytpl, $ = layui.jquery, laypage = layui.laypage;
+                var key = $('#search_key').val();
+                var cabh = $('#search_cate').val();
+                var cdate = $('#search_month').val();
+                var postdata = {
+                    key: key,
+                    cate: cabh,
+                    month: cdate,
+                    pagesize: pagesize,
+                    pageindex: pageindex
+                };
+                console.log(postdata);
+                var url = "/Blog/List";
+                $.post(url, postdata, function (data) {
+                    if (pageindex === 1) {
+                        /*第一页的时候设置分页控件*/
+                        $('#span_pagecount').html(data.pagecount);
+                        $('#span_totalrecord').html(data.totalrecord);
+                        laypage.render({
+                            elem: 'divpage',
+                            count: data.totalrecord,
+                            skin: '#5fb878',
+                            skip: false,
+                            jump: function (obj, first) {
+                                if (!first) {
+                                    $('#span_curpage').html(obj.curr);
+                                    load_list_page(obj.curr);
+                                }
+                            }
+                        });
+                    }
+                    /*设置分页数据*/
+                    var getTpl = $('#demo').html();
+                    //console.log(data);
+                    if (data.totalrecord === 0) {
+                        $('.body_list').html("<article class='article'><div class='article-inner'><header class='article-header'><h1>未能找到匹配项，再去逛逛吧！</h1></header></div></article>");
+                    } else {
+                        laytpl(getTpl).render(data, function (html) {
+                            $('.body_list').html(html);
+                        });
+                    }
+                }, 'json');
+            });
+        }
+
+        /* 搜索 */
+        function search() {
+            location.href = "/Blog/Index?key=" + $('#search_key').val();;
+        }
+    </script>
+</body>
+</html>

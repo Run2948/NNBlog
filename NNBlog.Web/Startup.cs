@@ -27,22 +27,18 @@ namespace NNBlog.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //string connstr = Configuration.GetSection("ConnStr").Value;
+            string connstr = Configuration.GetSection("ConnStr").Value;
 
-            DAL.AdminDAL adal = new DAL.AdminDAL();
-            services.AddSingleton<DAL.AdminDAL>(adal);
-
-            DAL.BlogDAL blogdal = new DAL.BlogDAL();
-            services.AddSingleton<DAL.BlogDAL>(blogdal);
-
-            DAL.CategoryDAL cadal = new DAL.CategoryDAL();
-            services.AddSingleton<DAL.CategoryDAL>(cadal);
+            services.AddSingleton<DAL.AdminDAL>(new DAL.AdminDAL() { ConnStr = connstr });
+            services.AddSingleton<DAL.BlogDAL>(new DAL.BlogDAL() { ConnStr = connstr });
+            services.AddSingleton<DAL.CategoryDAL>(new DAL.CategoryDAL() { ConnStr = connstr });
 
             // Add framework services.
             services.AddMvc();
-            //使用Session
+
+            //使用Session     
             services.AddDistributedMemoryCache();
-            services.AddSession();
+            services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(30); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,11 +59,14 @@ namespace NNBlog.Web
 
             app.UseStaticFiles();
 
+            // Session
+            app.UseSession();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Blog}/{action=Index}/{id?}");
                 routes.MapRoute(
                     name: "Admin",
                     template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");

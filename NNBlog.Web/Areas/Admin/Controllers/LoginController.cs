@@ -22,22 +22,23 @@ namespace NNBlog.Web.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.UserName = HttpContext.Session.GetString("blog_admin");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Index(string username, string password)
+        public IActionResult doLogin(string username, string password)
         {
             username = CommonTools.GetSafeSQL(username);
             password = CommonTools.MD5Hash(password);
-            Model.Admin a = dal.GetModel(username, password);
-            if (a == null)
+            Model.Admin model = dal.GetModel(username, password);
+            if (model == null)
             {
-                return Json(new { status = "n", info = "用户名或者密码错误！" });
+                return Json(new { status = "n", info = "   用户名或者密码错误！   " });
             }
-            HttpContext.Session.SetString("nnblog_admin", a.UserName);
-            return Json(new { status = "y", info = "登录成功！" });
+            HttpContext.Session.SetString("blog_admin", model.UserName);
+            return Json(new { status = "y", info = "    登录成功！正在前往管理中心....    " });
         }
     }
 }

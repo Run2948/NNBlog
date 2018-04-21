@@ -12,13 +12,13 @@ namespace NNBlog.Web.Filter
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //base.OnActionExecuting(context);
-            //HttpContext.Current.Response.Write("OnActionExecuting:正要准备执行Action的时候但还未执行时执行<br />");
-            string str = context.HttpContext.Session.GetString("nnblog_admin");
+            string str = context.HttpContext.Session.GetString("blog_admin");
             if (string.IsNullOrEmpty(str))
             {
-                context.Result = new ContentResult { Content = "parent.location.href='/Admin/Login'" };
+                context.Result = new RedirectResult("/Admin/Login");
             }
+            base.OnActionExecuting(context);
+            //HttpContext.Current.Response.Write("OnActionExecuting:正要准备执行Action的时候但还未执行时执行<br />");
         }
 
 

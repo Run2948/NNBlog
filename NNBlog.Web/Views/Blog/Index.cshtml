@@ -1,0 +1,92 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_BlogLayout.cshtml";
+}
+
+@section Scripts{
+    <script id="demo" type="text/html">
+        {{#  layui.each(d.list, function(index, item){ }}
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+            <div class="article-meta">
+                <a href="/Blog/Show/{{item.Id}}" target="_blank" class="article-date">
+                    <time datetime="" itemprop="datePublished">{{item.CreateDate}}</time>
+                </a>
+            </div>
+            <div class="article-inner">
+                <header class="article-header">
+                    <h1 itemprop="name">
+                        <a class="article-title" href="/Blog/Show/{{item.Id}}" target="_blank">{{item.Title}}</a>
+                    </h1>
+                </header>
+                <div class="article-entry" itemprop="articleBody">
+                    这里是简要说明。。。
+                </div>
+                <div class="article-info article-info-index">
+                    <div class="article-tag tagcloud">
+                        <ul class="article-tag-list">
+                            <li class="article-tag-list-item"><a class="color3">{{item.CateName}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </article>
+        {{#  }); }}
+    </script>
+    <script>
+        var pagesize = 12; //每页显示数
+
+        /*提取第一页数据并设置分页控件*/
+        load_list_page(1);
+
+        /*加载第X页数据*/
+        function load_list_page(pageindex) {
+            layui.use(['laytpl', 'laypage'], function () {
+                var laytpl = layui.laytpl, $ = layui.jquery, laypage = layui.laypage;
+                var key = $('#search_key').val();
+                var cabh = $('#search_cate').val();
+                var cdate = $('#search_month').val();
+                var postdata = {
+                    key: key,
+                    cate: cabh,
+                    month: cdate,
+                    pagesize: pagesize,
+                    pageindex: pageindex
+                };
+                console.log(postdata);
+                var url = "/Blog/List";
+                $.post(url, postdata, function (data) {
+                    if (pageindex === 1) {
+                        /*第一页的时候设置分页控件*/
+                        $('#span_pagecount').html(data.pagecount);
+                        $('#span_totalrecord').html(data.totalrecord);
+                        laypage.render({
+                            elem: 'divpage',
+                            count: data.totalrecord,
+                            skin: '#5fb878',
+                            skip: false,
+                            jump: function (obj, first) {
+                                if (!first) {
+                                    $('#span_curpage').html(obj.curr);
+                                    load_list_page(obj.curr);
+                                }
+                            }
+                        });
+                    }
+                    /*设置分页数据*/
+                    var getTpl = $('#demo').html();
+                    //console.log(data);
+                    if (data.totalrecord === 0) {
+                        $('.body_list').html("<article class='article'><div class='article-inner'><header class='article-header'><h1>未能找到匹配项，再去逛逛吧！</h1></header></div></article>");
+                    } else {
+                        laytpl(getTpl).render(data, function (html) {
+                            $('.body_list').html(html);
+                        });
+                    }
+                }, 'json');
+            });
+        }
+
+        $("#pageBar").show();
+    </script>
+}

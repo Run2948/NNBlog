@@ -9,7 +9,7 @@ namespace NNBlog.Web.Controllers
     public class HomeController : Controller
     {
         public IActionResult Index()
-        {
+        {        
             return View();
         }
 
@@ -32,4 +32,5 @@ namespace NNBlog.Web.Controllers
             return View();
         }
     }
+
 }

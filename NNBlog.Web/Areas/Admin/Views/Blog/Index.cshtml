@@ -5,221 +5,246 @@
 <blockquote class="layui-elem-quote">
     @ViewBag.Title
 </blockquote>
-<div class="layui-form">
-    <div class="layui-input-inline">
-        <a href="javascript:delmore()" class="layui-btn layui-btn-danger"><i class="layui-icon">&#x1007;</i>删除所选项</a>
-        <a href="/Admin/Blog/Add" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe61f;</i> 新 增</a>
-    </div> 
-    <div class="layui-input-inline">
-        <input id="txtkey" placeholder="标题关键字" type="text" class="layui-input" />
-    </div> 
-    <div class="layui-input-inline">
-        <input id="txtstartdate" placeholder="开始日期" type="text" class="layui-input" />
+<div style="padding:5px;">
+    <div class="layui-form">
+        <div class="layui-input-inline">
+            <a href="javascript:delmore()" class="layui-btn layui-btn-danger"><i class="layui-icon">&#x1007;</i>删除所选项</a>
+            <a href="/Admin/Blog/Add" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe61f;</i> 新 增</a>
+        </div>
+        <div class="layui-input-inline">
+            <input id="txtkey" placeholder="标题关键字" type="text" class="layui-input" />
+        </div>
+        <div class="layui-input-inline">
+            <input id="txtstartdate" placeholder="开始日期" type="text" class="layui-input" />
+        </div>
+        ~
+        <div class="layui-input-inline">
+            <input id="txtenddate" placeholder="结束日期" type="text" class="layui-input" />
+        </div>
+        <div class="layui-input-inline">
+            <select id="selcabh" lay-filter="cabh">
+                <option value="0">所有分类</option>
+                @foreach (NNBlog.Model.Category item in ViewBag.calist)
+                {
+                    <option value="@item.CateNo">@item.CateName</option>
+                }
+            </select>
+        </div>
+        <button type="button" class="layui-btn" id="btnSearch"><i class="layui-icon">&#xe615;</i> 查 询</button>
     </div>
-    ~
-    <div class="layui-input-inline">
-        <input id="txtenddate" placeholder="结束日期" type="text" class="layui-input" />
-    </div>
-    <div class="layui-input-inline">
-        <select id="selcabh" lay-filter="cabh">
-            <option value="0">所有分类</option>
-            @foreach (NNBlog.Model.Category item in ViewBag.calist)
-            {
-                <option value="@item.CateNo">@item.CateName</option>
-            }
-        </select>
-    </div>
-    <button type="button" class="layui-btn" id="btnSearch"><i class="layui-icon">&#xe615;</i> 查 询</button>
-</div>
-<table class="layui-table">
-    <thead>
+    <table class="layui-table">
+        <thead>
+            <tr>
+                <th><input id="chkall" type="checkbox" class="allselect" /><label for="chkall">全选</label></th>
+                <th>创建时间</th>
+                <th>博客标题</th>
+                <th>博客分类</th>
+                <th>访问量</th>
+                <th>管理</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    @Html.AntiForgeryToken()
+    <script id="demo" type="text/html">
+        {{#  layui.each(d.list, function(index, item){ }}
         <tr>
-            <th><input id="chkall" type="checkbox" class="allselect" /></th>
-            <th>创建时间</th>
-            <th>博客标题</th>
-            <th>博客分类</th>
-            <th>访问量</th>
-            <th>管理</th>
+            <td><input type='checkbox' class='chkitem' value='{{item.Id}}' /></td>
+            <td>{{item.CreateDate}}</td>
+            <td>{{item.Title}}</td>
+            <td>{{item.CateName}}</td>
+            <td>{{item.VisitNo}}</td>
+            <td>
+                <a href="/Admin/Blog/Add?id={{item.Id}}"><i class="layui-icon">&#xe642;</i>编辑</a> |
+                <a href="javascript:void(0);" onclick="delete_blog({{item.Id}})"><i class="layui-icon">&#x1006;</i>删除</a>
+            </td>
         </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-@Html.AntiForgeryToken()
-<script id="demo" type="text/html">
-    {{#  layui.each(d.list, function(index, item){ }}
-    <tr>
-        <td><input type='checkbox' class='chkitem' value='{{item.Id}}' /> </td>
-        <td>{{item.Createdate}}</td>
-        <td>{{item.Title}}</td>
-        <td>{{item.Caname}}</td>
-        <td>{{item.Visitnum}}</td>
-        <td>
-            <a href="/Adnn1n/Blog/Add?id={{item.Id}}"><i class="layui-icon">&#xe642;</i>编辑</a> |
-            <a href="javascript:void(0);" onclick="delete_blog({{item.Id}})"><i class="layui-icon">&#x1006;</i>删除</a>
-        </td>
-    </tr>
-    {{#  }); }}
-</script>
-<div>
-    <span style="display:inline; margin:0 10px;">总共<span style="display:inline;" id="span_totalrecord"></span>条记录，第<span style="display:inline;" id="span_curpage">1</span>页/共<span style="display:inline;" id="span_pagecount"></span>页</span>
-    <span id="divpage" style="display:inline;"></span>
+        {{#  }); }}
+    </script>
+    <div>
+        <span style="display:inline; margin:0 10px;">总共<span style="display:inline;" id="span_totalrecord"></span>条记录，第<span style="display:inline;" id="span_curpage">1</span>页/共<span style="display:inline;" id="span_pagecount"></span>页</span>
+        <span id="divpage" style="display:inline;"></span>
+    </div>
 </div>
 @section scripts{
     <script>
         var pagesize = 12; //每页显示数
 
         /*加载layui的相关组件*/
-        layui.use(['layer','form','laydate'], function () {
-            var layer = layui.layer, 
-                $ = layui.jquery;
+        layui.use(['layer', 'form', 'laydate'],
+            function () {
+                var layer = layui.layer,
+                    $ = layui.jquery;
 
-            /*全选复选框*/
-            $("#chkall").click(function () {
-                if ($(this).prop("checked") === true) {
-                    $(".chkitem").prop("checked", true);
-                } else {
-                    $(".chkitem").prop("checked", false);
+                /* 初始分页 */
+//                var url = "/Admin/Blog/GetTotalCount?t=" + new Date().valueOf();
+//                $.post(url,function (count) {
+//                        console.log("取到的总页数：" + count);
+//                        laypage.render({
+//                            elem: 'divpage',
+//                            count: count,
+//                            jump: function (obj) {
+//                                var pageindex = obj.curr;
+//                                layer.alert("点击了第" + pageindex + "页。");
+//                                // 读取后台数据返回json后拼接HTML
+//                                load_list_page(pageindex);
+//                            }
+//                        });
+//                    });
+
+
+                /*全选复选框*/
+                $("#chkall").click(function () {
+                    if ($(this).prop("checked") === true) {
+                        $(".chkitem").prop("checked", true);
+                    } else {
+                        $(".chkitem").prop("checked", false);
+                    }
+                });
+
+                var form = layui.form; //设置表单中的下拉框
+                form.on('select(cabh)',
+                    function (data) {
+                        console.log(data);
+                        console.log(data.elem); //得到select原始DOM对象
+                        console.log(data.value); //得到被选中的值
+                        $('#selcabh').val(data.value);
+                    });
+
+                /*日期文本框*/
+                var laydate = layui.laydate;
+                var start = {
+                    istoday: false,
+                    choose: function (datas) {
+                        end.min = datas; //开始日选好后，重置结束日的最小日期
+                        end.start = datas; //将结束日的初始值设定为开始日
+                    }
+                };
+                var end = {
+                    istoday: false,
+                    choose: function (datas) {
+                        start.max = datas; //结束日选好后，重置开始日的最大日期
+                    }
+                };
+                document.getElementById('txtstartdate').onclick = function () {
+                    start.elem = this;
+                    laydate.render(start);
                 }
-            });
+                document.getElementById('txtenddate').onclick = function () {
+                    end.elem = this;
+                    laydate.render(end);
+                }
 
-            var form = layui.form;  //设置表单中的下拉框
-            form.on('select(catebh)', function(data){
-                console.log(data.elem); //得到select原始DOM对象
-                console.log(data.value); //得到被选中的值
-                $('#selcabh').val(data.value);
-            });
-
-            /*日期文本框*/
-            var laydate = layui.laydate;
-            var start = { 
-               istoday: false
-              ,choose: function(datas){
-                  end.min = datas; //开始日选好后，重置结束日的最小日期
-                  end.start = datas; //将结束日的初始值设定为开始日
-               }
-            };
-            var end = {
-               istoday: false
-              ,choose: function(datas){
-                  start.max = datas; //结束日选好后，重置开始日的最大日期
-              }
-            };
-            document.getElementById('txtstartdate').onclick = function(){
-                start.elem = this;
-                laydate(start);
-            }
-            document.getElementById('txtenddate').onclick = function() {
-                end.elem = this;
-                laydate(end);
-            }
-
-            /*提取第一页数据并设置分页控件*/ 
-            load_list_page(1);
-
-            /*查询按钮*/
-            $('#btnSearch').click(function () {
+                /*提取第一页数据并设置分页控件*/
                 load_list_page(1);
-            });
-        });
 
+                /*查询按钮*/
+                $('#btnSearch').click(function () {
+                    load_list_page(1);
+                });
+            });
 
 
         /*加载第X页数据*/
-        function load_list_page(pageindex) {   
-            layui.use(['laytpl', 'laypage'], function () {
-                var laytpl = layui.laytpl, $ = layui.jquery, laypage = layui.laypage;
+        function load_list_page(pageindex) {
+            layui.use(['laytpl', 'laypage'],
+                function () {
+                    var laytpl = layui.laytpl, $ = layui.jquery, laypage = layui.laypage;
+                    var key = $.trim($('#txtkey').val());
+                    var startdate = $('#txtstartdate').val();
+                    var enddate = $('#txtenddate').val();
+                    var cabh = $('#selcabh').val();
+                    var postdata = {
+                        key: key,
+                        startdate: startdate,
+                        enddate: enddate,
+                        cabh: cabh,
+                        pagesize: pagesize,
+                        pageindex: pageindex
+                    };
 
-                var key = $.trim($('#txtkey').val());
-                var startdate = $('#txtstartdate').val();
-                var enddate = $('#txtenddate').val();
-                var cabh = $('#selcabh').val();
-                var postdata = {
-                    key: key,
-                    startdate: startdate,
-                    enddate: enddate,
-                    cabh: cabh,
-                    pagesize: pagesize,
-                    pageindex: pageindex
-                };
-
-                var url = "/Admin/Blog/List";
-                $.post(url, postdata, function (data) {
-                    if (pageindex === 1) {
-                        /*第一页的时候设置分页控件*/
-                        $('#span_pagecount').html(data.pagecount);
-                        $('#span_totalrecord').html(data.totalrecord);
-                        laypage({
-                            cont: 'divpage',
-                            pages: data.pagecount,
-                            skin: '#5fb878',
-                            skip: false,
-                            jump: function (obj, first) {
-                                if (!first) { 
-                                    $('#span_curpage').html(obj.curr);
-                                    load_list_page(obj.curr);
-                                }
+                    var url = "/Admin/Blog/List";
+                    $.post(url,
+                        postdata,
+                        function (data) {
+                            console.log(data);
+                            if (pageindex === 1) {
+                                /*第一页的时候设置分页控件*/
+                                $('#span_pagecount').html(data.pagecount);
+                                $('#span_totalrecord').html(data.totalrecord);
+                                laypage.render({
+                                    elem: 'divpage',
+                                    count: data.totalrecord,
+                                    skin: '#5fb878',
+                                    skip: true,
+                                    jump: function (obj, first) {
+                                        if (!first) {
+                                            $('#span_curpage').html(obj.curr);
+                                            load_list_page(obj.curr);
+                                        }
+                                    }
+                                });
                             }
-                        });
-                    }
-                    /*设置分页数据*/
-                    var getTpl = $('#demo').html();
-                    laytpl(getTpl).render(data, function (html) {
-                        $('tbody').html(html);
-                    });
-                }, 'json');
-            });
+                            /*设置分页数据*/
+                            var getTpl = $('#demo').html();
+                            laytpl(getTpl).render(data,function (html) {
+                                $('tbody').html(html);
+                            });
+                        },'json');
+                });
 
         }
 
         /*删除单个博客*/
         function delete_blog(id, thisobj) {
-            layui.use(['layer'], function () {
-                var layer = layui.layer, $ = layui.jquery;
-                layer.confirm('是否确认删除？',
-                    function() {
-                        var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
-                        var postdata = { ids: id, __RequestVerificationToken: requestVerificationToken };
-                        var url = "/Admin/Blog/Delete?t=" + new Date().valueOf();
-                        $.post(url,
-                            postdata,
-                            function(data) {
-                                if (data.status === "y") {
-                                    layer.alert(data.info, function() { location.reload(); });
-                                } else {
-                                    layer.alert(data.info);
-                                }
-                            },
-                            'json');
-                    });
-            });
+            layui.use(['layer'],
+                function () {
+                    var layer = layui.layer, $ = layui.jquery;
+                    layer.confirm('是否确认删除？',
+                        function () {
+                            var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+                            var postdata = { ids: id, __RequestVerificationToken: requestVerificationToken };
+                            var url = "/Admin/Blog/Delete?t=" + new Date().valueOf();
+                            $.post(url,
+                                postdata,
+                                function (data) {
+                                    if (data.status === "y") {
+                                        layer.alert(data.info, function () { location.reload(); });
+                                    } else {
+                                        layer.alert(data.info);
+                                    }
+                                },
+                                'json');
+                        });
+                });
 
         }
 
         /*删除多个博客*/
         function delmore() {
-            layui.use(['layer'], function () {
-                var layer = layui.layer, $ = layui.jquery;
-                layer.confirm('是否确认删除所选项？',
-                    function() {
-                        var str = "";
-                        $(".chkitem").each(function(i) {
-                            if ($(this).prop("checked") === true) {
-                                str += $(this).val() + ",";
-                            }
+            layui.use(['layer'],
+                function () {
+                    var layer = layui.layer, $ = layui.jquery;
+                    layer.confirm('是否确认删除所选项？',
+                        function () {
+                            var str = "";
+                            $(".chkitem").each(function (i) {
+                                if ($(this).prop("checked") === true) {
+                                    str += $(this).val() + ",";
+                                }
+                            });
+                            var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+                            var postdata = { ids: str, __RequestVerificationToken: requestVerificationToken };
+                            var url = "/Admin/Blog/Delete?t=" + new Date().valueOf();
+                            $.post(url,
+                                postdata,
+                                function (data) {
+                                    layer.alert(data.info, function () { location.reload(); });
+                                },
+                                'json');
                         });
-                        var requestVerificationToken = $("input[name=__RequestVerificationToken]").val();
-                        var postdata = { ids: str, __RequestVerificationToken: requestVerificationToken };
-                        var url = "/Admin/Blog/Delete?t=" + new Date().valueOf();
-                        $.post(url,
-                            postdata,
-                            function(data) {
-                                layer.alert(data.info, function() { location.reload(); });
-                            },
-                            'json');
-                    });
-            });
+                });
         }
 
     </script>
-
 }

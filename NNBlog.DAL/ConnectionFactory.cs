@@ -9,9 +9,9 @@ namespace NNBlog.DAL
     /// </summary>
     public class ConnectionFactory
     {
-        public static DbConnection GetOpenConnection()
+        public static DbConnection GetOpenConnection(string connStr)
         {
-            var connection = new SqlConnection(@"Server=.;uid=sa;pwd=sa1994sa;database=NNBlog;");
+            var connection = new SqlConnection(connStr); // @"Server=.;uid=sa;pwd=sa1994sa;database=NNBlog;"
 
             connection.Open();
 

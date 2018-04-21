@@ -1,0 +1,51 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_BlogLayout.cshtml";
+}
+
+@if (Model == null)
+{
+    <article class="article">
+        <div class="article-inner">
+            <header class="article-header">
+                <h1>
+                    未能找到匹配项，再去逛逛吧！
+                </h1>
+            </header>
+        </div>
+    </article>
+}
+else
+{
+    <article class="article article-type-post" itemscope itemprop="blogPost">
+        <div class="article-meta">
+            <a href="javascript:void(0)" class="article-date">
+                <time datetime="" itemprop="datePublished">@Model.CreateDate.ToString("yyyy-MM-dd HH:mm")</time>
+            </a>
+        </div>
+        <div class="article-inner">
+            <header class="article-header">
+                <h1 itemprop="name">
+                    <a class="article-title" href="javascript:void(0)">@Model.Title</a>
+                </h1>
+            </header>
+            <div class="article-entry" itemprop="articleBody">
+                @Html.Raw(Model.Body)
+            </div>
+            <div class="article-info article-info-index">
+                <div class="article-tag tagcloud">
+                    <ul class="article-tag-list">
+                        <li class="article-tag-list-item"><a class="color3">@Model.CateName</a></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </article>
+}
+
+@section Scripts{
+    <script>
+        //$("#pageBar").hide();
+    </script>
+}
